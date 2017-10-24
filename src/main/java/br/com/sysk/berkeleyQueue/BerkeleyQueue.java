@@ -19,9 +19,9 @@ public class BerkeleyQueue<T> {
 	
 	private Class<T> clazz;
 	
-	public BerkeleyQueue(String queueName, Class<T> clazz) throws DatabaseException {
+	public BerkeleyQueue(String dbPath, String queueName, Class<T> clazz) throws DatabaseException {
 		this.queueName = queueName;
-		this.queue = BerkeleyDatabase.getInstance().createQueue(queueName);
+		this.queue = BerkeleyDatabase.getInstance(dbPath).createQueue(queueName);
 		this.clazz = clazz;
 	}
 

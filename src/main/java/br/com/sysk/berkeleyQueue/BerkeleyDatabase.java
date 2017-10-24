@@ -33,9 +33,8 @@ public class BerkeleyDatabase {
 		dbConfig.setBtreeComparator(new KeyComparator());
 	}
 	
-	public static BerkeleyDatabase getInstance() throws DatabaseException {
+	public static BerkeleyDatabase getInstance(String dbPath) throws DatabaseException {
 		if (instance == null) {
-			String dbPath = "/home/efraim/berkeley";
 			instance = new BerkeleyDatabase(dbPath);
 		}
 		return instance;

@@ -5,21 +5,19 @@ import java.util.Date;
 import java.util.List;
 import java.util.Random;
 
-import org.junit.Test;
-
 import br.com.sysk.berkeleyQueue.BerkeleyQueue;
 
 public class Teste {
 
 	public static final int max = 3;
 	
-	@Test
+	//@Test
 	public void teste() {
 		try {
 			List<BerkeleyQueue<Data>> list = new ArrayList<BerkeleyQueue<Data>>();
 			for (int i=0; i<max; i++) {
 				String name = "fila" + i;
-				BerkeleyQueue<Data> queue = new BerkeleyQueue<>(name, Data.class);
+				BerkeleyQueue<Data> queue = new BerkeleyQueue<>("~/queueTest", name, Data.class);
 				list.add(queue);
 			}
 			for (int i=0; i<max; i++) {
