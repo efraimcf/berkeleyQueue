@@ -23,7 +23,7 @@ public class ReflectionsUtil {
 	@SuppressWarnings("rawtypes")
 	public static Class getAnnotatedFieldClass(Object object, Class annotation) {
 		Field field = getAnnotatedField(object.getClass(), annotation);
-		return field.getClass();
+		return field.getDeclaringClass();
 	}
 	
 	@SuppressWarnings("rawtypes")
@@ -33,5 +33,13 @@ public class ReflectionsUtil {
 		Object dataValue = field.get(data);
 		T value = JsonUtil.fromJson(JsonUtil.toJson(dataValue), clazz);
 		return value;
+	}
+	
+	public static void setFieldValue(Field field, Object data, Object value) 
+			throws IllegalArgumentException, IllegalAccessException {
+		if (value.getClass().equals(field.getDeclaringClass())) {
+			field.setAccessible(true);
+			field.set(data, value);
+		}
 	}
 }

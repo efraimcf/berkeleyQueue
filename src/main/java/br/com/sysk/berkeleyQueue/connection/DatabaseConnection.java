@@ -67,7 +67,9 @@ public class DatabaseConnection {
 	}
 	
 	public void closeDatabase() throws DatabaseException {
-		dbEnv.close();
+		if (dbEnv != null) {
+			dbEnv.close();
+		}
 	}
 	
 	@SuppressWarnings("rawtypes")

@@ -6,6 +6,9 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.sleepycat.je.Cursor;
 import com.sleepycat.je.Database;
 import com.sleepycat.je.DatabaseEntry;
@@ -45,7 +48,7 @@ public class BerkeleyDAO<T, K> {
 		queue.close();
 	}
 	
-	public void save(T entity) 
+	public T save(T entity) 
 			throws DatabaseException, IllegalArgumentException, IllegalAccessException, 
 			IOException, InstantiationException {
 		if (entity == null) {
@@ -62,6 +65,8 @@ public class BerkeleyDAO<T, K> {
 		queue.put(null, newKey, newData);
 		queue.sync();
 		cursor.close();
+		updateEntityKey(id, entity);
+		return entity;
 	}
 	
 	public List<T> findAll() throws DatabaseException, IOException {
@@ -78,7 +83,7 @@ public class BerkeleyDAO<T, K> {
 		return list;
 	}
 	
-	public T findById(Object id) throws DatabaseException, IOException {
+	public T findById(K id) throws DatabaseException, IOException {
 		final DatabaseEntry key = new DatabaseEntry(id.toString().getBytes());
 		final DatabaseEntry data = new DatabaseEntry();
 		final Cursor cursor = queue.openCursor(null, null);
@@ -110,5 +115,14 @@ public class BerkeleyDAO<T, K> {
 		}
 		DatabaseEntry key = clazz.newInstance().generateKey(field.get(entity));
 		return key;
+	}
+	
+	private void updateEntityKey(K id, T entity) {
+		try {
+			Field field = ReflectionsUtil.getAnnotatedField(entity.getClass(), Id.class);
+			ReflectionsUtil.setFieldValue(field, entity, id);
+		} catch (IllegalArgumentException | IllegalAccessException e) {
+			LoggerFactory.getLogger(BerkeleyDAO.class).warn(e.getMessage());
+		}
 	}
 }
