@@ -1,6 +1,6 @@
-package br.com.sysk.berkeleyQueue;
+package br.com.sysk.berkeleyQueue.queue;
 
-import java.io.UnsupportedEncodingException;
+import java.io.IOException;
 import java.math.BigInteger;
 
 import com.sleepycat.je.Cursor;
@@ -9,6 +9,7 @@ import com.sleepycat.je.DatabaseEntry;
 import com.sleepycat.je.DatabaseException;
 import com.sleepycat.je.LockMode;
 
+import br.com.sysk.berkeleyQueue.connection.DatabaseConnection;
 import br.com.sysk.berkeleyQueue.util.JsonUtil;
 
 public class BerkeleyQueue<T> {
@@ -21,7 +22,7 @@ public class BerkeleyQueue<T> {
 	
 	public BerkeleyQueue(String dbPath, String queueName, Class<T> clazz) throws DatabaseException {
 		this.queueName = queueName;
-		this.queue = BerkeleyDatabase.getInstance(dbPath).createQueue(queueName);
+		this.queue = DatabaseConnection.getInstance(dbPath).createEntity(queueName);
 		this.clazz = clazz;
 	}
 
@@ -37,7 +38,7 @@ public class BerkeleyQueue<T> {
 		queue.close();
 	}
 	
-	public void push(T item) throws DatabaseException {
+	public void push(T item) throws DatabaseException, IOException {
 		DatabaseEntry key = new DatabaseEntry();
 		DatabaseEntry data = new DatabaseEntry();
 		Cursor cursor = queue.openCursor(null, null);
@@ -56,7 +57,7 @@ public class BerkeleyQueue<T> {
 		cursor.close();
 	}
 	
-	public T pull() throws DatabaseException, UnsupportedEncodingException {
+	public T pull() throws DatabaseException, IOException {
 		final DatabaseEntry key = new DatabaseEntry();
 		final DatabaseEntry data = new DatabaseEntry();
 		final Cursor cursor = queue.openCursor(null, null);

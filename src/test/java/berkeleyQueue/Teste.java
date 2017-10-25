@@ -5,7 +5,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Random;
 
-import br.com.sysk.berkeleyQueue.BerkeleyQueue;
+import br.com.sysk.berkeleyQueue.queue.BerkeleyQueue;
 
 public class Teste {
 
