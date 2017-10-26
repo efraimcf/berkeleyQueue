@@ -55,12 +55,13 @@ public class BerkeleyQueue<T> {
 		queue.put(null, newKey, newData);
 		queue.sync();
 		cursor.close();
+		cursor = null;
 	}
 	
 	public T pull() throws DatabaseException, IOException {
 		final DatabaseEntry key = new DatabaseEntry();
 		final DatabaseEntry data = new DatabaseEntry();
-		final Cursor cursor = queue.openCursor(null, null);
+		Cursor cursor = queue.openCursor(null, null);
 		cursor.getFirst(key, data, LockMode.RMW);
 		if (data.getData() == null) {
 			return null;
@@ -70,6 +71,7 @@ public class BerkeleyQueue<T> {
 		cursor.delete();
 		queue.sync();
 		cursor.close();
+		cursor = null;
 		return item;
 	}
 }

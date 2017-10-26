@@ -5,6 +5,9 @@ import java.util.Date;
 import java.util.List;
 import java.util.Random;
 
+import org.junit.Test;
+
+import br.com.sysk.berkeleyQueue.dao.BerkeleyDAO;
 import br.com.sysk.berkeleyQueue.queue.BerkeleyQueue;
 
 public class Teste {
@@ -63,26 +66,17 @@ public class Teste {
 			e.printStackTrace();
 		}
 	}
-	
-	class Data {
 
-		private String text;
-		private long timestamp;
-
-		public Data(String text) {
-			this.text = text;
-		}
-		
-		public String getText() {
-			return text;
-		}
-		
-		public void setTimestamp(long timestamp) {
-			this.timestamp = timestamp;
-		}
-		
-		public long getTimestamp() {
-			return timestamp;
+	@Test
+	public void teste2() {
+		Data data = new Data("OI");
+		data.setId(1l);
+		try {
+			new BerkeleyDAO<Data, Long>("./data", Data.class).save(data);
+			new BerkeleyDAO<Data, Long>("./data", Data.class).save(data);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 	}
 }
