@@ -66,7 +66,7 @@ public class ReflectionsUtil {
 		if (LOGGER.isTraceEnabled()) {
 			LOGGER.trace("function=setFieldValue status=init");
 		}
-		if (value.getClass().equals(field.getType())) {
+		if (value != null && field.getType().equals(value.getClass())) {
 			field.setAccessible(true);
 			field.set(data, value);
 		}

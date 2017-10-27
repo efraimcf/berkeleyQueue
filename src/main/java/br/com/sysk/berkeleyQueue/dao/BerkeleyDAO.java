@@ -74,7 +74,10 @@ public class BerkeleyDAO<T, K> {
 			cursor = null;
 			updateEntityKey(id, entity);
 		} catch (Exception e) {
-			cursor.close();
+			LOGGER.error("Error save entity", e);
+			if (cursor != null) {
+				cursor.close();
+			}
 			cursor = null;
 			throw e;
 		}
