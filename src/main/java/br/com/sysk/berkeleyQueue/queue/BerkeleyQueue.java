@@ -3,6 +3,9 @@ package br.com.sysk.berkeleyQueue.queue;
 import java.io.IOException;
 import java.math.BigInteger;
 
+import org.slf4j.LoggerFactory;
+
+import com.sleepycat.bind.tuple.StringBinding;
 import com.sleepycat.je.Cursor;
 import com.sleepycat.je.Database;
 import com.sleepycat.je.DatabaseEntry;
@@ -51,7 +54,10 @@ public class BerkeleyQueue<T> {
 		}
 		BigInteger newKeyValue = prevKeyValue.add(BigInteger.ONE);
 		final DatabaseEntry newKey = new DatabaseEntry(newKeyValue.toByteArray());
-		final DatabaseEntry newData = new DatabaseEntry(JsonUtil.toJson(item).getBytes());
+		final DatabaseEntry newData = new DatabaseEntry();
+		String json = JsonUtil.toJson(item);
+		LoggerFactory.getLogger(BerkeleyQueue.class).info("Coisa salva nessa coisa: {}", json);
+		StringBinding.stringToEntry(json , newData);
 		queue.put(null, newKey, newData);
 		queue.sync();
 		cursor.close();
@@ -66,7 +72,8 @@ public class BerkeleyQueue<T> {
 		if (data.getData() == null) {
 			return null;
 		}
-		final String json = new String(data.getData(), "UTF-8");
+		final String json = StringBinding.entryToString(data);
+		LoggerFactory.getLogger(BerkeleyQueue.class).info("Pegou essa coisa: {}", json);
 		T item = JsonUtil.fromJson(json, clazz);
 		cursor.delete();
 		queue.sync();

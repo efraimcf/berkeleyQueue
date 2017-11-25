@@ -67,7 +67,7 @@ public class Teste {
 		}
 	}
 
-	@Test
+	//@Test
 	public void teste2() {
 		Data data = new Data("OI");
 		data.setId(1l);
