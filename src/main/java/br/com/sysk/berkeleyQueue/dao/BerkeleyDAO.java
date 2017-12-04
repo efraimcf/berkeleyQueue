@@ -27,13 +27,13 @@ public class BerkeleyDAO<T, K> {
 	private static final Logger LOGGER = LoggerFactory.getLogger(BerkeleyDAO.class);	
 	private final String tableName;
 	
-	private final Database queue;
+	private final Database database;
 	
 	private Class<T> clazz;
 	
 	public BerkeleyDAO(String dbPath, Class<T> clazz) throws DatabaseException {
 		this.tableName = clazz.getSimpleName();
-		this.queue = DatabaseConnection.getInstance(dbPath).createEntity(this.tableName);
+		this.database = DatabaseConnection.getInstance(dbPath).createEntity(this.tableName);
 		this.clazz = clazz;
 	}
 
@@ -42,11 +42,11 @@ public class BerkeleyDAO<T, K> {
 	}
 
 	public long size() throws DatabaseException {
-		return queue.count();
+		return database.count();
 	}
 	
 	public void close() throws DatabaseException {
-		queue.close();
+		database.close();
 	}
 	
 	public T save(T entity) 
@@ -62,14 +62,14 @@ public class BerkeleyDAO<T, K> {
 		DatabaseEntry data = new DatabaseEntry();
 		Cursor cursor = null;
 		try {
-			cursor = queue.openCursor(null, null);
+			cursor = database.openCursor(null, null);
 			cursor.getLast(key, data, LockMode.RMW);
 			K id = getId(entity);
 			final DatabaseEntry newKey;
 			newKey = getNewKey(entity);
 			final DatabaseEntry newData = new DatabaseEntry(JsonUtil.toJson(entity).getBytes());
-			queue.put(null, newKey, newData);
-			queue.sync();
+			database.put(null, newKey, newData);
+			database.sync();
 			cursor.close();
 			cursor = null;
 			updateEntityKey(id, entity);
@@ -96,7 +96,7 @@ public class BerkeleyDAO<T, K> {
 		DatabaseEntry data = new DatabaseEntry();
 		Cursor cursor = null;
 		try {
-			cursor = queue.openCursor(null, null);
+			cursor = database.openCursor(null, null);
 			while(cursor.getNext(key, data, LockMode.DEFAULT) == OperationStatus.SUCCESS) {
 				final String json = new String(data.getData(), StandardCharsets.UTF_8);
 				T item = JsonUtil.fromJson(json, clazz);
@@ -123,7 +123,7 @@ public class BerkeleyDAO<T, K> {
 		final DatabaseEntry data = new DatabaseEntry();
 		Cursor cursor = null;
 		try {
-			cursor = queue.openCursor(null, null);
+			cursor = database.openCursor(null, null);
 			cursor.getSearchKey(key, data, LockMode.RMW);
 			if (data.getData() == null) {
 				if (LOGGER.isDebugEnabled()) {
@@ -171,7 +171,7 @@ public class BerkeleyDAO<T, K> {
 		Id idAnnotation = (Id) field.getAnnotation(Id.class);
 		Class<? extends KeyStrategy> clazz = idAnnotation.strategy();
 		if (clazz == null) {
-			LOGGER.error("Cannot generate a new Key without strategy for class {}", 
+			LOGGER.error("function=getNewKey msg=[Cannot generate a new Key without strategy for class {}]", 
 					entity.getClass().getSimpleName());
 			throw new RuntimeException("Cannot generate a new Key without strategy");
 		}
