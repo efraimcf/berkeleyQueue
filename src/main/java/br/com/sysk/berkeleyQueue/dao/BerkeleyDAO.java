@@ -65,7 +65,7 @@ public class BerkeleyDAO<T, K> {
 			cursor = database.openCursor(null, null);
 			cursor.getLast(key, data, LockMode.RMW);
 			T last = null;
-			if (data != null && data.getData() != null) {
+			if (data != null && data.getData() != null && data.getData().length > 0) {
 				final String json = new String(data.getData(), StandardCharsets.UTF_8);
 				last = JsonUtil.fromJson(json, clazz);
 			}
