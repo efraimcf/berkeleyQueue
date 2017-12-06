@@ -11,6 +11,7 @@ public abstract class KeyStrategy<K> {
 
 	public DatabaseEntry generateKey(K lastValue) throws IOException {
 		K newValue = generate(lastValue);
+		lastValue = newValue;
 		DatabaseEntry key = new DatabaseEntry(toByteArray(newValue));
 		return key;
 	}
@@ -19,7 +20,7 @@ public abstract class KeyStrategy<K> {
 		return newValue.toString().getBytes(StandardCharsets.UTF_8);
 	}
 
-	protected abstract K generate(K lastValue);
+	public abstract K generate(K lastValue);
 	
 	public abstract KeyComparator<K> getComparator();
 }

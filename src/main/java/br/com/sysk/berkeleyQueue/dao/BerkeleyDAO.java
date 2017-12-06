@@ -64,7 +64,13 @@ public class BerkeleyDAO<T, K> {
 		try {
 			cursor = database.openCursor(null, null);
 			cursor.getLast(key, data, LockMode.RMW);
-			K id = getId(entity);
+			T last = null;
+			if (data != null && data.getData() != null) {
+				final String json = new String(data.getData(), StandardCharsets.UTF_8);
+				last = JsonUtil.fromJson(json, clazz);
+			}
+			K id = getId(entity, last);
+			updateEntityKey(id, entity);
 			final DatabaseEntry newKey;
 			newKey = getNewKey(entity);
 			final DatabaseEntry newData = new DatabaseEntry(JsonUtil.toJson(entity).getBytes());
@@ -72,7 +78,6 @@ public class BerkeleyDAO<T, K> {
 			database.sync();
 			cursor.close();
 			cursor = null;
-			updateEntityKey(id, entity);
 		} catch (Exception e) {
 			LOGGER.error("Error save entity", e);
 			if (cursor != null) {
@@ -148,13 +153,28 @@ public class BerkeleyDAO<T, K> {
 		}
 	}
 	
-	@SuppressWarnings("unchecked")
-	private K getId(T entity) throws IllegalArgumentException, IllegalAccessException, IOException {
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	private K getId(T entity, T last) throws IllegalArgumentException, IllegalAccessException, IOException, InstantiationException {
 		if (LOGGER.isTraceEnabled()) {
 			LOGGER.trace("function=getId status=init");
 		}
 		Class<K> idClazz = ReflectionsUtil.getAnnotatedFieldClass(entity, Id.class);
 		K id = ReflectionsUtil.getAnnotatedFieldValue(entity, Id.class, idClazz);
+		if (id == null) {
+			Field field = ReflectionsUtil.getAnnotatedField(entity.getClass(), Id.class);
+			Id idAnnotation = (Id) field.getAnnotation(Id.class);
+			Class<? extends KeyStrategy> clazz = idAnnotation.strategy();
+			if (clazz == null) {
+				LOGGER.error("function=getNewKey msg=[Cannot generate a new Key without strategy for class {}]", 
+						entity.getClass().getSimpleName());
+				throw new RuntimeException("Cannot generate a new Key without strategy");
+			}
+			if (last != null) {
+				id = (K) clazz.newInstance().generate(field.get(last));
+			} else {
+				id = (K) clazz.newInstance().generate(null);
+			}
+		}
 		if (LOGGER.isTraceEnabled()) {
 			LOGGER.trace("function=getId status=done");
 		}

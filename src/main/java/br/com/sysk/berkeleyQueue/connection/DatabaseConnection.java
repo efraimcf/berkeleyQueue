@@ -68,6 +68,9 @@ public class DatabaseConnection {
 			LOGGER.trace("function=createEntity status=init");
 		}
 		if (databases.containsKey(name)) {
+			if (LOGGER.isTraceEnabled()) {
+				LOGGER.trace("function=createEntity status=done");
+			}
 			return databases.get(name);
 		}
 		DatabaseConfig dbConfig = new DatabaseConfig();
@@ -90,6 +93,9 @@ public class DatabaseConnection {
 			LOGGER.trace("function=createEntity status=init");
 		}
 		if (databases.containsKey(clazz.getSimpleName())) {
+			if (LOGGER.isTraceEnabled()) {
+				LOGGER.trace("function=createEntity status=done");
+			}
 			return databases.get(clazz.getSimpleName());
 		}
 		DatabaseConfig dbConfig = new DatabaseConfig();
